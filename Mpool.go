@@ -9,8 +9,8 @@ import (
 
 //任务
 type RunnableTask interface {
-	getName() string
-	getNextDispatcher() *Dispatcher
+	GetName() string
+	GetNextDispatcher() *Dispatcher
 	Run(pp *Dispatcher)
 }
 
