@@ -9,22 +9,11 @@ import (
 
 //任务
 type Job interface {
-		name string
-		nextDispatcher *Dispatcher
+		Name string
+		NextDispatcher *Dispatcher
+	Run(pp *Dispatcher)
 }
 
-func (p *Job) Run(pp *Dispatcher){
-
-	fmt.Println("i am working")
-  if pp!=nil{
-		pp.JobQueue <- Job{
-			fmt.Sprintf("工序2-[%s]",p.name),
-			nil,
-		}
-	}
-
-
-}
 //  工人
 type Worker struct {
     name string //工人的名字
@@ -47,9 +36,9 @@ func (w *Worker) LoopWork(){
             select {
             //接收到了新的任务
             case job :=<- w.JobChannel:
-                log.Info("woker[%s]接收到了任务 [%s]",w.name,job.name)
-								job.Run(job.nextDispatcher)
-								log.Info("woker[%s]完成任务 [%s]",w.name,job.name)
+                log.Info("woker[%s]接收到了任务 [%s]",w.name,job.Name)
+								job.Run(job.NextDispatcher)
+								log.Info("woker[%s]完成任务 [%s]",w.name,job.Name)
             //接收到了任务
             case <-w.quit:
 								log.Info("woker[%s]退出。",w.name)
@@ -89,7 +78,7 @@ func (d *Dispatcher) LoopGetTask()  {
     for {
         select {
         case job :=<-d.JobQueue:
-            log.Info("调度者[%s][%d]接收到一个工作任务 %s ",d.name, len(d.WorkerPool),job.name)
+            log.Info("调度者[%s][%d]接收到一个工作任务 %s ",d.name, len(d.WorkerPool),job.Name)
             // 调度者接收到一个工作任务
             go func (job Job) {
                 //从现有的对象池中拿出一个
