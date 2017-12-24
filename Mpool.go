@@ -8,10 +8,11 @@ import (
 
 
 //任务
-type Job struct {
+type Job interface {
 		name string
 		nextDispatcher *Dispatcher
 }
+
 func (p *Job) Run(pp *Dispatcher){
 
 	fmt.Println("i am working")
