@@ -2,12 +2,8 @@ package Mpool
 
 import (
 	"fmt"
-	"github.com/go-ini/ini"
 	"github.com/mkideal/log"
-	"os"
-	"runtime"
 	"strconv"
-	"sync"
 )
 
 
