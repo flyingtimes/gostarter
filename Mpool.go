@@ -36,9 +36,9 @@ func (w *Worker) LoopWork(){
             select {
             //接收到了新的任务
             case job :=<- w.JobChannel:
-		    log.Info("woker[%s]接收到了任务 [%s]",w.name,job.getName())
-		    job.Run(job.getNextDispatcher())
-		    log.Info("woker[%s]完成任务 [%s]",w.name,job.getName())
+		    log.Info("woker[%s]接收到了任务 [%s]",w.name,job.GetName())
+		    job.Run(job.GetNextDispatcher())
+		    log.Info("woker[%s]完成任务 [%s]",w.name,job.GetName())
             //接收到了任务
             case <-w.quit:
 								log.Info("woker[%s]退出。",w.name)
@@ -78,7 +78,7 @@ func (d *Dispatcher) LoopGetTask()  {
     for {
         select {
         case job :=<-d.JobQueue:
-		log.Info("调度者[%s][%d]接收到一个工作任务 %s ",d.name, len(d.WorkerPool),job.getName())
+		log.Info("调度者[%s][%d]接收到一个工作任务 %s ",d.name, len(d.WorkerPool),job.GetName())
             // 调度者接收到一个工作任务
             go func (job RunnableTask) {
                 //从现有的对象池中拿出一个
