@@ -49,11 +49,9 @@ func (w *Worker) LoopWork(){
                 log.Info("woker[%s]接收到了任务 [%s]",w.name,job.name)
 								job.Run(job.nextDispatcher)
 								log.Info("woker[%s]完成任务 [%s]",w.name,job.name)
-								wg.Done()
             //接收到了任务
             case <-w.quit:
 								log.Info("woker[%s]退出。",w.name)
-								wg.Done()
                 return
             }
         }
@@ -129,14 +127,5 @@ func NewDispatcher(dname string,maxWorkers int) *Dispatcher {
         maxWorkers:maxWorkers,//这个调度者有好多个工人
 				JobQueue:jq,
     }
-}
-
-
-/*
-func (p *Mpool) initialize(name string,workers int ) chan Job {
-	dispatch := NewDispatcher(name,workers,JobQueue)
-	dispatch.Run()
-	log.Info("调度者(%s) 初始化完毕.", name)
-	return JobQueue
 }
 
