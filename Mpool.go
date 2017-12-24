@@ -8,16 +8,18 @@ import (
 
 
 //任务
-type Job interface {
+type RunnableTask interface {
+	getName() string
+	getNextDispatcher() *Dispatcher
 	Run(pp *Dispatcher)
 }
+
 
 //  工人
 type Worker struct {
     name string //工人的名字
-    // WorkerPool chan JobQueue //对象池
-    WorkerPool chan chan Job//对象池
-    JobChannel chan Job //通道里面拿
+    WorkerPool chan chan RunnableTask//对象池
+    JobChannel chan RunnableTask //通道里面拿
     quit chan bool //
 }
 
@@ -29,14 +31,14 @@ func (w *Worker) LoopWork(){
 
         for{
             //注册到对象池中,
-						log.Info("woker[%s]返回任务池等待任务",w.name)
+	    log.Info("woker[%s]返回任务池等待任务",w.name)
             w.WorkerPool <-w.JobChannel
             select {
             //接收到了新的任务
             case job :=<- w.JobChannel:
-                log.Info("woker[%s]接收到了任务 [%s]",w.name,job.Name)
-								job.Run(job.NextDispatcher)
-								log.Info("woker[%s]完成任务 [%s]",w.name,job.Name)
+		    log.Info("woker[%s]接收到了任务 [%s]",w.name,job.getName())
+								job.Run(job.getNextDispatcher)
+		    log.Info("woker[%s]完成任务 [%s]",w.name,job.getName())
             //接收到了任务
             case <-w.quit:
 								log.Info("woker[%s]退出。",w.name)
@@ -56,8 +58,8 @@ type Dispatcher struct {
                  //WorkerPool chan JobQueue
     name string //调度的名字
     maxWorkers int //获取 调试的大小
-    WorkerPool chan chan Job //注册和工人一样的通道
-		JobQueue chan Job
+    WorkerPool chan chan RunnableTask //注册和工人一样的通道
+		JobQueue chan RunnableTask
 }
 
 func (d *Dispatcher) Run(){
@@ -76,9 +78,9 @@ func (d *Dispatcher) LoopGetTask()  {
     for {
         select {
         case job :=<-d.JobQueue:
-            log.Info("调度者[%s][%d]接收到一个工作任务 %s ",d.name, len(d.WorkerPool),job.Name)
+		log.Info("调度者[%s][%d]接收到一个工作任务 %s ",d.name, len(d.WorkerPool),job.getName())
             // 调度者接收到一个工作任务
-            go func (job Job) {
+            go func (job RunnableTask) {
                 //从现有的对象池中拿出一个
                 jobChannel := <-d.WorkerPool
 
@@ -95,19 +97,19 @@ func (d *Dispatcher) LoopGetTask()  {
 }
 
 // 新建一个工人
-func NewWorker(workerPool chan chan Job,name string) Worker{
+func NewWorker(workerPool chan chan RunnableTask,name string) Worker{
     log.Info("创建了一个worker:%s \n",name);
     return Worker{
         name:name,//工人的名字
         WorkerPool: workerPool, //工人在哪个对象池里工作,可以理解成部门
-        JobChannel:make(chan Job),//工人的任务
+        JobChannel:make(chan RunnableTask),//工人的任务
         quit:make(chan bool),
     }
 }
 
 func NewDispatcher(dname string,maxWorkers int) *Dispatcher {
-	  jq := make(chan Job,maxWorkers)
-    pool :=make(chan chan Job,maxWorkers)
+	  jq := make(chan RunnableTask,maxWorkers)
+    pool :=make(chan chan RunnableTask,maxWorkers)
 		log.Info("调度者(%s) 初始化完毕.", dname)
     return &Dispatcher{
         WorkerPool:pool,// 将工人放到一个池中,可以理解成一个部门中
