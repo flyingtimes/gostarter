@@ -9,8 +9,6 @@ import (
 
 //任务
 type Job interface {
-		Name string
-		NextDispatcher *Dispatcher
 	Run(pp *Dispatcher)
 }
 
