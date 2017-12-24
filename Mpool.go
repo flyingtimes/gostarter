@@ -37,7 +37,7 @@ func (w *Worker) LoopWork(){
             //接收到了新的任务
             case job :=<- w.JobChannel:
 		    log.Info("woker[%s]接收到了任务 [%s]",w.name,job.getName())
-								job.Run(job.getNextDispatcher)
+		    job.Run(job.getNextDispatcher())
 		    log.Info("woker[%s]完成任务 [%s]",w.name,job.getName())
             //接收到了任务
             case <-w.quit:
