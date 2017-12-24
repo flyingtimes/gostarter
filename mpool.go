@@ -7,6 +7,14 @@ import (
 	"os"
 )
 
+type Mpool struct {
+	name string
+}
+
+func (p *Mpool) initialize() {
+	log.Info("Mpool (%s) initialized.", p.name)
+}
+
 func main() {
 	cfg, err := ini.Load("config.ini")
 	if err != nil {
@@ -26,5 +34,7 @@ func main() {
 	log_file_name := key.String()
 	defer log.Uninit(log.InitFile(log_file_name))
 	log.Info("Main started.")
+	pool := Mpool{"pool_default"}
+	pool.initialize()
 	log.Info("Main exit normally.")
 }
