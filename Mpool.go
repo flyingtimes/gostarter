@@ -143,46 +143,4 @@ func (p *Mpool) initialize(name string,workers int ) chan Job {
 	log.Info("调度者(%s) 初始化完毕.", name)
 	return JobQueue
 }
-*/
-var wg sync.WaitGroup
-func main() {
-	cfg, err := ini.Load("config.ini")
-	if err != nil {
-		fmt.Println("找不到配置文件：", err)
-		os.Exit(1)
-	}
-	section, err := cfg.GetSection("main")
-	if err != nil {
-		fmt.Println("找不到main的配置信息：", err)
-		os.Exit(1)
-	}
-	key, err := section.GetKey("logfile")
-	if err != nil {
-		fmt.Println("找不到logfile的配置信息：", err)
-		os.Exit(1)
-	}
-	log_file_name := key.String()
-	defer log.Uninit(log.InitFile(log_file_name))
-	log.Info("Main started.")
 
-	runtime.GOMAXPROCS(4)
-
-	wg.Add(10000*2)
-	dispacher1:= NewDispatcher("01",3)
-	dispacher2 := NewDispatcher("02",3)
-	dispacher1.Run()
-	dispacher2.Run()
-	for i:=0;i<10000;i++{
-
-        dispacher1.JobQueue <- Job{
-            fmt.Sprintf("工序1-[%s]",strconv.Itoa(i)),
-						dispacher2,
-        }
-
-
-    }
-   wg.Wait()
-    //close(dispacher1.JobQueue)
-	  //close(dispacher2.JobQueue)
-	log.Info("Main exit normally.")
-}
